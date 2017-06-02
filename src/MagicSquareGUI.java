@@ -1,10 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
+import java.util.regex.Pattern;
 
 /**
+ * This GUI shows some rules of the magic square game. (I had troubles with
+ * implementing all the game rules. That's why I only managed to code checking
+ * if numbers in table are between 1-9 and if sum of each row is 15.)
  *
  * @author ylhaart
  */
@@ -15,6 +15,18 @@ public class MagicSquareGUI extends javax.swing.JFrame {
      */
     public MagicSquareGUI() {
         initComponents();
+        isDigit = true; // default value
+
+        // a model listener that helps to control changed values:
+        table.getModel().addTableModelListener((e) -> {
+            System.out.println(
+                    String.format("Changed in (%1$d,%2$d), a new value: %3$s",
+                            e.getColumn(),
+                            e.getFirstRow(),
+                            table.getModel().getValueAt(e.getFirstRow(), e.getColumn()))
+            );
+        });
+
     }
 
     /**
@@ -26,22 +38,133 @@ public class MagicSquareGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+        checkButton = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Exercise 6.3");
+
+        jLabel1.setText("Magic square:");
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "", "", ""
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        table.setColumnSelectionAllowed(true);
+        table.setRowHeight(50);
+        table.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(table);
+        table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(0).setResizable(false);
+            table.getColumnModel().getColumn(1).setResizable(false);
+            table.getColumnModel().getColumn(2).setResizable(false);
+        }
+
+        checkButton.setText("Check...");
+        checkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(checkButton)))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(71, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(64, 64, 64))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkButton)
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkButtonActionPerformed
+
+        for (int y = 0; y < 3; y++) {
+            int sum = 0; // a sum of each row
+            for (int x = 0; x < 3; x++) {
+                
+                // a helper to see the value of each cell:
+                Object valueAt = table.getModel().getValueAt(y, x);
+                System.out.println("x: " + x + ", y: " + y + ", value: " + valueAt);
+                
+                
+                if (valueAt == null) { // if a cell is empty
+                    isDigit = false;
+                } else {
+                    int parseInt = Integer.parseInt("" + valueAt);
+                    sum += parseInt; // calculates a sum of each row
+                }
+                
+                // checks with a regular expression if value is between 1-9:
+                boolean matches = Pattern.matches("[1-9]", "" + valueAt);
+                System.out.println("is between 1-9: " + matches);
+
+                if (!matches) {
+                    System.out.println(valueAt + " is not between 1-9");
+                    isDigit = false;
+                }
+            }
+            System.out.println("Sum of the row: " + sum);
+            
+            if (sum != 15) {
+                System.out.println("Sum '" + sum + "' was different than 15.");
+                isMagicSquare = false;
+            } else {
+                System.out.println("Sum equals 15.");
+            }
+
+        }
+
+        if (!isDigit) {
+            System.out.println("Some numbers were not between 1-9.");
+        }
+
+        if (!isMagicSquare) {
+            System.out.println("This table is not a magic square.");
+        }
+
+    }//GEN-LAST:event_checkButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -79,5 +202,11 @@ public class MagicSquareGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton checkButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
+    boolean isDigit;
+    boolean isMagicSquare;
 }
